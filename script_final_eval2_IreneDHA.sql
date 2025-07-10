@@ -62,3 +62,50 @@ GROUP BY c.category_id, c.name;
 SELECT AVG(length) AS duración_promedio, rating AS clasificación
 FROM film
 GROUP BY rating;
+
+-- EJER 13: Encuentra el nombre y apellido de los actores que aparecen en la película con title "Indian Love".
+SELECT CONCAT(first_name, ' ', last_name) AS actores_en_indian_love FROM actor
+INNER JOIN film_actor USING (actor_id)
+INNER JOIN film USING (film_id)
+WHERE film.title LIKE "Indian Love";
+
+-- EJER 14: Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.
+SELECT title AS películas_con_animales FROM film
+WHERE description LIKE '%dog%' OR '%cat%';
+
+-- EJER 15: Hay algún actor o actriz que no aparezca en ninguna película en la tabla film_actor.
+SELECT actor_id, film_id FROM actor
+LEFT JOIN film_actor USING (actor_id)
+WHERE film_id IS NULL;
+-- La respuesta es: No hay ningún actor o actriz que no aparezca en ninguna película
+
+-- EJER 16: Encuentra el título de todas las películas que fueron lanzadas entre el año 2005 y 2010.
+SELECT title FROM film
+WHERE release_year BETWEEN 2005 AND 2010;
+
+-- EJER 17: Encuentra el título de todas las películas que son de la misma categoría que "Family".
+SELECT f.title AS películas_para_familias
+FROM film AS f
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+WHERE c.name IN ('family');
+
+-- EJER 18: Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.
+
+SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia, COUNT(fa.film_id) AS num_películas
+FROM actor AS a
+INNER JOIN film_actor AS fa USING (actor_id)
+GROUP BY a.actor_id
+HAVING num_películas > 10; -- no podemos usar un WHERE cuando estamos poniendo la condición en el GROUP BY
+
+-- EJER 19: Encuentra el título de todas las películas que son "R" y tienen una duración mayor a 2 horas en la tabla film.
+SELECT title AS películas_R_largas FROM film
+WHERE rating IN ('R') AND length > 120; -- también se puede poner rating = 'R'
+
+-- EJER 20: Encuentra las categorías de películas que tienen un promedio de duración superior a 120 minutos y muestra el nombre de la categoría junto con el promedio de duración.
+SELECT AVG(f.length) AS promedio_duración, c.name AS categoría
+FROM film AS f
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+GROUP BY c.category_id
+HAVING promedio_duración > 120
