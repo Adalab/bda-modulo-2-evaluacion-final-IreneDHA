@@ -47,7 +47,7 @@ SELECT c.customer_id, CONCAT(first_name, ' ', last_name) AS clientes, COUNT(r.re
 FROM customer AS c
 INNER JOIN rental AS r -- hago este join porque solo me interesa ver información sobre clientes que han alquilado
 USING (customer_id)
-GROUP BY r.customer_id;
+GROUP BY c.customer_id;
 
 -- EJER 11: Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el recuento de alquileres.
 SELECT c.name AS categoría, COUNT(r.rental_id) AS cantidad_películas_alquiladas
@@ -71,7 +71,7 @@ WHERE film.title LIKE "Indian Love";
 
 -- EJER 14: Muestra el título de todas las películas que contengan la palabra "dog" o "cat" en su descripción.
 SELECT title AS películas_con_animales FROM film
-WHERE description LIKE '%dog%' OR '%cat%';
+WHERE description LIKE '%dog%' OR description LIKE '%cat%';
 
 -- EJER 15: Hay algún actor o actriz que no aparezca en ninguna película en la tabla film_actor.
 SELECT actor_id, film_id FROM actor
@@ -96,7 +96,7 @@ SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia
 FROM actor AS a
 INNER JOIN film_actor AS fa USING (actor_id)
 GROUP BY a.actor_id
-HAVING num_películas > 10; -- no podemos usar un WHERE cuando estamos poniendo la condición en el GROUP BY
+HAVING COUNT(DISTINCT fa.film_id) > 10; -- no podemos usar un WHERE cuando estamos poniendo la condición en el GROUP BY
 
 -- EJER 19: Encuentra el título de todas las películas que son "R" y tienen una duración mayor a 2 horas en la tabla film.
 SELECT title AS películas_R_largas FROM film

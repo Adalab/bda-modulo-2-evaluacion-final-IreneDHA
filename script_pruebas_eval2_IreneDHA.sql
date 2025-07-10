@@ -205,6 +205,17 @@ WHERE c.name IN ('family');
 -- SELECT first_name, last_name FROM actor
 -- COUNT(film_id)
 -- INNER JOIN film_actor USING (film_id)
+SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia, COUNT(DISTINCT fa.film_id) AS num_películas
+FROM actor AS a
+INNER JOIN film_actor AS fa USING (actor_id)
+GROUP BY a.actor_id
+HAVING num_películas > 10; 
+-- solo quiero mostrar 1 columna
+SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia
+FROM actor AS a
+INNER JOIN film_actor AS fa USING (actor_id)
+GROUP BY a.actor_id
+HAVING COUNT(DISTINCT fa.film_id) > 10; 
 
 -- EJER 19
 -- title
