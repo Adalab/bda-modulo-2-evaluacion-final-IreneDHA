@@ -184,7 +184,7 @@ SELECT COUNT(actor_id) FROM actor;
 SELECT actor_id, film_id FROM actor
 LEFT JOIN film_actor USING (actor_id)
 WHERE film_id IS NULL;
-SELECT actor
+SELECT actor;
 -- EJER 16:
 SELECT * FROM film;
 SELECT DISTINCT release_year FROM film;
@@ -226,4 +226,72 @@ ON f.film_id = fc.film_id
 INNER JOIN category AS c
 ON fc.category_id = c.category_id
 GROUP BY c.category_id
-HAVING promedio_duración > 120 
+HAVING promedio_duración > 120; 
+
+-- EJER 21: 
+SELECT a.first_name, a.last_name, COUNT(DISTINCT fa.film_id) AS num_películas 
+FROM actor AS a
+INNER JOIN film_actor AS fa USING (actor_id)
+GROUP BY a.actor_id
+HAVING num_películas >= 5;
+
+-- EJER 22:
+-- busco dónde puedo encontrar la info que necesito:
+SELECT * FROM film;
+SELECT * FROM rental;
+SELECT i.film_id, r.rental_id, r.inventory_id, r.rental_date, r.return_date FROM film AS f
+INNER JOIN inventory AS i USING (film_id)
+INNER JOIN rental AS r USING (inventory_id);
+-- buscamos los rental_id con  r.return_date - r.rental_date > 5
+SELECT r.rental_id FROM rental AS r
+WHERE (r.return_date - r.rental_date) > 5; -- no puedo comprobar si esta operación se está haciendo
+-- hacemos la consulta principal
+SELECT DISTINCT f.title FROM film AS f
+INNER JOIN inventory AS i USING (film_id)
+INNER JOIN rental AS r USING (inventory_id)
+WHERE rental_id IN (SELECT r.rental_id FROM rental AS r
+					WHERE (r.return_date - r.rental_date) > 5);
+
+DESCRIBE rental;
+
+-- EJER 24: 
+SELECT f.title, c.category_id, c.name
+FROM film AS f
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+WHERE c.name IN ('comedy') AND f.length <= 180; -- comprobación de que el AND sea correcto
+
+-- EJER 23: 
+
+SELECT actor_id FROM actor;
+-- películas que son horror
+SELECT f.title, c.category_id, c.name
+FROM film AS f
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+WHERE c.name IN ('horror');
+-- actores que han actuado en horror
+SELECT a.actor_id, f.title, c.category_id, c.name FROM actor AS a 
+INNER JOIN film_actor AS fa USING (actor_id) 
+INNER JOIN film AS f USING (film_id) 
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+WHERE c.name IN ('horror');
+-- query principal
+SELECT actor_id 
+FROM actor AS a 
+WHERE actor_id NOT IN (SELECT fa.actor_id, f.title, c.category_id, c.name 
+						FROM film_actor AS fa 
+						INNER JOIN film AS f USING (film_id) 
+						INNER JOIN film_category AS fc USING (film_id)
+						INNER JOIN category AS c USING (category_id)
+						WHERE c.name IN ('horror'));
+                        -- limpieza SELECT subquery
+SELECT actor_id 
+FROM actor AS a 
+WHERE actor_id NOT IN (SELECT fa.actor_id 
+						FROM film_actor AS fa 
+						INNER JOIN film AS f USING (film_id) 
+						INNER JOIN film_category AS fc USING (film_id)
+						INNER JOIN category AS c USING (category_id)
+						WHERE c.name IN ('horror'))

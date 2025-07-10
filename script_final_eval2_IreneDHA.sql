@@ -92,7 +92,7 @@ WHERE c.name IN ('family');
 
 -- EJER 18: Muestra el nombre y apellido de los actores que aparecen en más de 10 películas.
 
-SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia, COUNT(fa.film_id) AS num_películas
+SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia
 FROM actor AS a
 INNER JOIN film_actor AS fa USING (actor_id)
 GROUP BY a.actor_id
@@ -108,4 +108,44 @@ FROM film AS f
 INNER JOIN film_category AS fc USING (film_id)
 INNER JOIN category AS c USING (category_id)
 GROUP BY c.category_id
-HAVING promedio_duración > 120
+HAVING promedio_duración > 120;
+
+-- EJER 21: Encuentra los actores que han actuado en al menos 5 películas y muestra el nombre del actor junto con la cantidad de películas en las que han actuado.
+SELECT CONCAT(first_name, ' ', last_name) AS actores_con_experiencia, COUNT(DISTINCT fa.film_id) AS num_películas 
+-- hemos visto en el ejercicio 18 que realmente es distinct no es necesario
+FROM actor AS a
+INNER JOIN film_actor AS fa USING (actor_id)
+GROUP BY a.actor_id
+HAVING num_películas >= 5;
+
+-- EJER 22: Encuentra el título de todas las películas que fueron alquiladas por más de 5 días.
+SELECT DISTINCT f.title FROM film AS f
+INNER JOIN inventory AS i USING (film_id)
+INNER JOIN rental AS r USING (inventory_id)
+WHERE rental_id IN (SELECT r.rental_id FROM rental AS r
+					WHERE (r.return_date - r.rental_date) > 5); -- mi lógica me dice que tengo que restar estos dos datos, pero no estoy 100% de que esto sea correcto
+
+-- existe la función DATEDIFF que calcula la diferencia de días en datos que son tipo DATE/DATETIME
+SELECT DISTINCT f.title FROM film AS f
+INNER JOIN inventory AS i USING (film_id)
+INNER JOIN rental AS r USING (inventory_id)
+WHERE rental_id IN (SELECT r.rental_id FROM rental AS r
+					WHERE DATEDIFF(r.return_date, r.rental_date) > 5); -- EL RESULTADO ES DIFERENTE
+
+
+-- EJER 23: Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría "Horror".
+SELECT CONCAT(first_name, ' ', last_name) AS actores_no_horror
+FROM actor AS a 
+WHERE actor_id NOT IN (SELECT fa.actor_id 
+						FROM film_actor AS fa 
+						INNER JOIN film AS f USING (film_id) 
+						INNER JOIN film_category AS fc USING (film_id)
+						INNER JOIN category AS c USING (category_id)
+						WHERE c.name IN ('horror'));
+
+-- EJER 24: Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la tabla film.
+SELECT f.title AS comedias_largas
+FROM film AS f
+INNER JOIN film_category AS fc USING (film_id)
+INNER JOIN category AS c USING (category_id)
+WHERE c.name IN ('comedy') AND f.length > 180;
