@@ -81,3 +81,75 @@ FROM customer AS c
 INNER JOIN rental AS r
 ON c.customer_id = r.customer_id -- para comprobar que el join se está haciendo correctamente
 GROUP BY r.customer_id;
+
+-- EJER 11
+-- cantidad películas alquilas x categoría + nombre categoria
+-- film + film_category + category
+SELECT * FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+INNER JOIN category AS c
+ON fc.category_id = c.category_id;
+
+-- con esta selección puedo ver todas las películas y sus categorías
+SELECT f.film_id, f.title, fc.film_id, c.category_id, fc.category_id, c.name
+FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+INNER JOIN category AS c
+ON fc.category_id = c.category_id;
+-- ahora quiero ver cuáles se han alquilado: inventory y rental
+SELECT * FROM inventory AS i
+INNER JOIN rental AS R
+ON i.inventory_id = r.inventory_id;
+
+SELECT i.inventory_id, r.inventory_id, i.film_id, r.rental_id, r.customer_id
+FROM inventory AS i
+INNER JOIN rental AS R
+ON i.inventory_id = r.inventory_id;
+-- muestro la cantidad total de películas alquiladas, aunque da error porque estoy intentabdo seleccionar diferente número de filas
+SELECT i.inventory_id, r.inventory_id, i.film_id, COUNT(r.rental_id), r.customer_id
+FROM inventory AS i
+INNER JOIN rental AS R
+ON i.inventory_id = r.inventory_id
+GROUP BY r.customer_id;
+-- join de las 5 tablas que necesito
+SELECT f.film_id, f.title, fc.film_id, c.category_id, fc.category_id, c.name, 
+i.inventory_id, r.inventory_id, i.film_id, r.rental_id
+FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+INNER JOIN category AS c
+ON fc.category_id = c.category_id
+INNER JOIN inventory AS i
+INNER JOIN rental AS r
+ON i.inventory_id = r.inventory_id;
+-- 
+SELECT c.category_id, c.name, COUNT(r.rental_id)
+FROM film AS f
+INNER JOIN film_category AS fc
+ON f.film_id = fc.film_id
+INNER JOIN category AS c
+ON fc.category_id = c.category_id
+INNER JOIN inventory AS i
+INNER JOIN rental AS r
+ON i.inventory_id = r.inventory_id
+GROUP BY c.category_id;
+-- he corregido los join ya que faltaba la unión entre film e inventory
+SELECT c.category_id, c.name, COUNT(r.rental_id)
+FROM category AS c
+INNER JOIN film_category AS fc
+ON fc.category_id = c.category_id
+INNER JOIN film AS f
+ON f.film_id = fc.film_id 
+INNER JOIN inventory AS i
+ON f.film_id = i.film_id
+INNER JOIN rental AS r
+ON i.inventory_id = r.inventory_id
+GROUP BY c.category_id, c.name;
+
+-- EJER 12:
+-- AVG lenght para cada rating
+SELECT AVG(length) AS duración_promedio, rating
+FROM film
+GROUP BY rating;

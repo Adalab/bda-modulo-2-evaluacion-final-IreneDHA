@@ -48,3 +48,17 @@ FROM customer AS c
 INNER JOIN rental AS r -- hago este join porque solo me interesa ver información sobre clientes que han alquilado
 USING (customer_id)
 GROUP BY r.customer_id;
+
+-- EJER 11: Encuentra la cantidad total de películas alquiladas por categoría y muestra el nombre de la categoría junto con el recuento de alquileres.
+SELECT c.name AS categoría, COUNT(r.rental_id) AS cantidad_películas_alquiladas
+FROM category AS c
+INNER JOIN film_category AS fc USING (category_id)
+INNER JOIN film AS f USING (film_id)
+INNER JOIN inventory AS i USING (film_id)
+INNER JOIN rental AS r USING (inventory_id)
+GROUP BY c.category_id, c.name;
+
+-- EJER 12: Encuentra el promedio de duración de las películas para cada clasificación de la tabla film y muestra la clasificación junto con el promedio de duración.
+SELECT AVG(length) AS duración_promedio, rating AS clasificación
+FROM film
+GROUP BY rating;
